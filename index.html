@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XRP24H - Your Daily XRP Dashboard</title>
+    <meta name="description" content="All-in-one XRP dashboard: live price, profit calculator, news digest, and sentiment analysis. Updated every 24 hours.">
+    <meta property="og:title" content="XRP24H - Your Daily XRP Dashboard">
+    <meta property="og:description" content="Live XRP price, profit calculator, 24h news & sentiment. Everything XRP in one place.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://xrp24h.com">
+    <meta property="og:image" content="https://xrp24h.com/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="XRP24H">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="XRP24H - Your Daily XRP Dashboard">
+    <meta name="twitter:description" content="Live XRP price, profit calculator, 24h news & sentiment. Everything XRP in one place.">
+    <meta name="twitter:image" content="https://xrp24h.com/og-image.png">
+    <link rel="canonical" href="https://xrp24h.com">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0f;
+            --card: rgba(255,255,255,0.03);
+            --border: #222;
+            --text: #e0e0e0;
+            --muted: #888;
+            --accent: #00d4aa;
+            --accent2: #00a8ff;
+            --green: #00d4aa;
+            --red: #ff4757;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        /* Header */
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .tagline { color: var(--muted); margin-top: 5px; }
+        
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-body { flex: 1; }
+        .card-title {
+            font-size: 0.85rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Price Card */
+        .price-main {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .price-change {
+            font-size: 1.1rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        .price-change.up { background: rgba(0,212,170,0.15); color: var(--green); }
+        .price-change.down { background: rgba(255,71,87,0.15); color: var(--red); }
+        .price-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        .stat { text-align: center; }
+        .stat-value { font-size: 1.2rem; font-weight: 600; color: #fff; }
+        .stat-label { font-size: 0.75rem; color: var(--muted); }
+        
+        /* Calculator Card */
+        .calc-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .calc-input-group { flex: 1; }
+        .calc-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 5px;
+            display: block;
+        }
+        .calc-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            font-size: 1.1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .calc-input:focus { border-color: var(--accent); }
+        .calc-result {
+            background: rgba(0,212,170,0.1);
+            border: 1px solid rgba(0,212,170,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .calc-result-label { font-size: 0.85rem; color: var(--muted); }
+        .calc-result-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-top: 5px;
+        }
+        .calc-result-profit {
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+        .profit-up { color: var(--green); }
+        .profit-down { color: var(--red); }
+        
+        /* Quick Targets */
+        .targets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .target-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .target-btn:hover {
+            border-color: var(--accent);
+            background: rgba(0,212,170,0.1);
+        }
+        .target-btn.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+        
+        /* Sentiment Card */
+        .sentiment-bars { margin-top: 15px; }
+        .sentiment-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .sentiment-label {
+            width: 70px;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+        .sentiment-bar-bg {
+            flex: 1;
+            height: 24px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+        .sentiment-bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.5s ease;
+        }
+        .sentiment-bar-fill.bullish { background: linear-gradient(90deg, #00d4aa, #00ff88); }
+        .sentiment-bar-fill.bearish { background: linear-gradient(90deg, #ff4757, #ff6b81); }
+        .sentiment-bar-fill.neutral { background: linear-gradient(90deg, #666, #888); }
+        .sentiment-value {
+            width: 50px;
+            text-align: right;
+            font-weight: 600;
+        }
+        .sentiment-value.bullish { color: var(--green); }
+        .sentiment-value.bearish { color: var(--red); }
+        .sentiment-value.neutral { color: var(--muted); }
+        
+        /* Preset Buttons (Converter) */
+        .preset-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .preset-btn:hover {
+            border-color: var(--accent);
+            background: rgba(0,212,170,0.1);
+        }
+        .preset-btn.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+        }
+        
+        /* News Card */
+        .news-list { max-height: 400px; overflow-y: auto; }
+        .news-item {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .news-item:last-child { border-bottom: none; }
+        .news-title {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            display: block;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .news-title:hover { color: var(--accent); }
+        .news-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        .news-sentiment {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+        }
+        .news-sentiment.Bullish { background: rgba(0,212,170,0.2); color: var(--green); }
+        .news-sentiment.Bearish { background: rgba(255,71,87,0.2); color: var(--red); }
+        .news-sentiment.Neutral { background: rgba(136,136,136,0.2); color: var(--muted); }
+        
+        /* Full Width Section */
+        .full-width { grid-column: 1 / -1; }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+        footer a { color: var(--accent); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        .footer-links { margin-top: 10px; }
+        .footer-links a { margin: 0 10px; }
+        
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+            color: var(--muted);
+        }
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Responsive */
+        @media (max-width: 850px) {
+            .grid { grid-template-columns: 1fr; }
+            .price-main { font-size: 2.5rem; }
+            .calc-row { flex-direction: column; }
+            .price-stats { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">⚡ XRP24H</div>
+            <p class="tagline">Your Daily XRP Dashboard</p>
+        </header>
+        
+        <div class="grid">
+            <!-- Price Card -->
+            <div class="card">
+                <div class="card-title">📈 XRP Price</div>
+                <div id="priceCard">
+                    <div class="loading"><div class="spinner"></div> Loading...</div>
+                </div>
+            </div>
+            
+            <!-- Sentiment Card -->
+            <div class="card">
+                <div class="card-title">📊 24h Market Sentiment</div>
+                <div id="sentimentCard">
+                    <div class="loading"><div class="spinner"></div> Loading...</div>
+                </div>
+            </div>
+            
+            <!-- Profit Calculator -->
+            <div class="card">
+                <div class="card-title">💰 Profit Calculator</div>
+                <div class="card-body">
+                    <div class="calc-row">
+                        <div class="calc-input-group">
+                            <label class="calc-label">XRP Amount</label>
+                            <input type="number" id="xrpAmount" class="calc-input" placeholder="1000" value="1000">
+                        </div>
+                        <div class="calc-input-group">
+                            <label class="calc-label">Buy Price (USD)</label>
+                            <input type="number" id="buyPrice" class="calc-input" placeholder="Avg buy price" value="">
+                        </div>
+                    </div>
+                    <div class="calc-input-group">
+                        <label class="calc-label">Target Price (USD)</label>
+                        <input type="number" id="targetPrice" class="calc-input" placeholder="10" value="10">
+                    </div>
+                    <div class="targets">
+                        <button class="target-btn" data-price="2">$2</button>
+                        <button class="target-btn" data-price="5">$5</button>
+                        <button class="target-btn active" data-price="10">$10</button>
+                        <button class="target-btn" data-price="50">$50</button>
+                        <button class="target-btn" data-price="100">$100</button>
+                        <button class="target-btn" data-price="500">$500</button>
+                    </div>
+                    <div class="calc-result">
+                        <div class="calc-result-label">Your XRP would be worth</div>
+                        <div class="calc-result-value" id="futureValue">$10,000</div>
+                        <div class="calc-result-profit" id="profitDisplay"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Converter Card -->
+            <div class="card">
+                <div class="card-title">🔄 Quick Converter</div>
+                <div class="card-body">
+                    <div class="calc-input-group" style="margin-bottom:15px">
+                        <label class="calc-label">USD Amount</label>
+                        <input type="number" id="convertAmount" class="calc-input" placeholder="Enter USD amount" value="100">
+                    </div>
+                    <div class="targets" style="margin-bottom:15px">
+                        <button class="preset-btn" data-amount="100">$100</button>
+                        <button class="preset-btn" data-amount="500">$500</button>
+                        <button class="preset-btn" data-amount="1000">$1K</button>
+                        <button class="preset-btn" data-amount="5000">$5K</button>
+                        <button class="preset-btn" data-amount="10000">$10K</button>
+                    </div>
+                    <div class="calc-result">
+                        <div class="calc-result-label">You would get</div>
+                        <div class="calc-result-value" id="convertResult">0 XRP</div>
+                        <div class="calc-result-profit">at current price</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- News Card - Full Width -->
+            <div class="card full-width">
+                <div class="card-title">📰 News in the Last 24 Hours</div>
+                <div id="newsCard">
+                    <div class="loading"><div class="spinner"></div> Loading news...</div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Data from <a href="https://xrpl.to" target="_blank">XRPL.to</a> · Auto-refreshes every 5 minutes</p>
+            <div class="footer-links">
+                <a href="/exchange-reserves">XRP Exchange Reserves</a>
+                <a href="https://howmuchisxrp.com">How Much is XRP</a>
+                <a href="https://xrppricenow.com">XRP Price Now</a>
+                <a href="https://whenxrp.com">When XRP</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        let currentPrice = 0;
+        
+        // Format currency
+        function formatUSD(num) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+        }
+        
+        function formatNumber(num) {
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            return num.toFixed(2);
+        }
+        
+        function timeAgo(dateStr) {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const mins = Math.floor((now - date) / 60000);
+            if (mins < 60) return `${mins}m ago`;
+            const hours = Math.floor(mins / 60);
+            if (hours < 24) return `${hours}h ago`;
+            return `${Math.floor(hours / 24)}d ago`;
+        }
+        
+        // Fetch XRP price
+        async function fetchPrice() {
+            try {
+                const res = await fetch('https://api.xrpl.to/v1/stats');
+                const data = await res.json();
+                
+                // exch.USD is rate (1 USD = X XRP), so XRP price = 1/rate
+                currentPrice = 1 / parseFloat(data.exch.USD);
+                const change24h = parseFloat(data.H24.xrpPro24h) || 0;
+                const isUp = change24h >= 0;
+                
+                const volume24h = parseFloat(data.H24.tradedXRP24H) * currentPrice || 0;
+                const activeAddresses = data.H24.activeAddresses24H || 0;
+                const uniqueTraders = data.H24.uniqueTraders24H || 0;
+                
+                document.getElementById('priceCard').innerHTML = `
+                    <div class="price-main">$${currentPrice.toFixed(4)}</div>
+                    <span class="price-change ${isUp ? 'up' : 'down'}">
+                        ${isUp ? '↑' : '↓'} ${Math.abs(change24h).toFixed(2)}% (24h)
+                    </span>
+                    <div class="price-stats">
+                        <div class="stat">
+                            <div class="stat-value">$${formatNumber(volume24h)}</div>
+                            <div class="stat-label">24h DEX Volume</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${formatNumber(activeAddresses)}</div>
+                            <div class="stat-label">Active Addresses</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">${formatNumber(uniqueTraders)}</div>
+                            <div class="stat-label">Unique Traders</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Update calculator with current price as default buy price
+                const buyPriceInput = document.getElementById('buyPrice');
+                if (!buyPriceInput.value || buyPriceInput.value === '') {
+                    buyPriceInput.placeholder = currentPrice.toFixed(4);
+                }
+                updateCalculator();
+                updateConverter();
+            } catch (e) {
+                console.error('Price fetch error:', e);
+                document.getElementById('priceCard').innerHTML = '<div class="loading">Failed to load price</div>';
+            }
+        }
+        
+        // Fetch sentiment & news
+        async function fetchNews() {
+            try {
+                const res = await fetch('https://api.xrpl.to/v1/news');
+                const data = await res.json();
+                
+                // Sentiment
+                const s = data.sentiment['24h'];
+                document.getElementById('sentimentCard').innerHTML = `
+                    <div class="sentiment-bars">
+                        <div class="sentiment-row">
+                            <span class="sentiment-label">Bullish</span>
+                            <div class="sentiment-bar-bg">
+                                <div class="sentiment-bar-fill bullish" style="width:${s.Bullish}%"></div>
+                            </div>
+                            <span class="sentiment-value bullish">${parseFloat(s.Bullish).toFixed(1)}%</span>
+                        </div>
+                        <div class="sentiment-row">
+                            <span class="sentiment-label">Bearish</span>
+                            <div class="sentiment-bar-bg">
+                                <div class="sentiment-bar-fill bearish" style="width:${s.Bearish}%"></div>
+                            </div>
+                            <span class="sentiment-value bearish">${parseFloat(s.Bearish).toFixed(1)}%</span>
+                        </div>
+                        <div class="sentiment-row">
+                            <span class="sentiment-label">Neutral</span>
+                            <div class="sentiment-bar-bg">
+                                <div class="sentiment-bar-fill neutral" style="width:${s.Neutral}%"></div>
+                            </div>
+                            <span class="sentiment-value neutral">${parseFloat(s.Neutral).toFixed(1)}%</span>
+                        </div>
+                    </div>
+                `;
+                
+                // News (last 24h)
+                const now = new Date();
+                const articles = data.data.filter(a => {
+                    const pubDate = new Date(a.pubDate);
+                    return (now - pubDate) < 24 * 60 * 60 * 1000;
+                }).slice(0, 10);
+                
+                let newsHtml = '<div class="news-list">';
+                articles.forEach(a => {
+                    newsHtml += `
+                        <div class="news-item">
+                            <a href="${a.sourceUrl}" target="_blank" rel="noopener" class="news-title">${a.title}</a>
+                            <div class="news-meta">
+                                <span class="news-sentiment ${a.sentiment}">${a.sentiment}</span>
+                                <span>${a.sourceName}</span>
+                                <span>${timeAgo(a.pubDate)}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                newsHtml += '</div>';
+                document.getElementById('newsCard').innerHTML = newsHtml;
+                
+            } catch (e) {
+                console.error('News fetch error:', e);
+            }
+        }
+        
+        // Calculator logic
+        function updateCalculator() {
+            const amount = parseFloat(document.getElementById('xrpAmount').value) || 0;
+            const buyPrice = parseFloat(document.getElementById('buyPrice').value) || currentPrice;
+            const targetPrice = parseFloat(document.getElementById('targetPrice').value) || 0;
+            
+            const futureValue = amount * targetPrice;
+            const currentValue = amount * buyPrice;
+            const profit = futureValue - currentValue;
+            const profitPct = currentValue > 0 ? ((futureValue / currentValue) - 1) * 100 : 0;
+            
+            document.getElementById('futureValue').textContent = formatUSD(futureValue);
+            
+            if (buyPrice > 0) {
+                const isProfit = profit >= 0;
+                document.getElementById('profitDisplay').innerHTML = `
+                    <span class="${isProfit ? 'profit-up' : 'profit-down'}">
+                        ${isProfit ? '+' : ''}${formatUSD(profit)} (${isProfit ? '+' : ''}${profitPct.toFixed(1)}%)
+                    </span>
+                `;
+            } else {
+                document.getElementById('profitDisplay').innerHTML = '';
+            }
+        }
+        
+        // Converter logic
+        function updateConverter() {
+            const usd = parseFloat(document.getElementById('convertAmount').value) || 0;
+            const xrp = currentPrice > 0 ? usd / currentPrice : 0;
+            document.getElementById('convertResult').textContent = `${xrp.toLocaleString('en-US', {maximumFractionDigits: 2})} XRP`;
+        }
+        
+        // Event listeners
+        document.querySelectorAll('.target-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.target-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('targetPrice').value = btn.dataset.price;
+                updateCalculator();
+            });
+        });
+        
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('convertAmount').value = btn.dataset.amount;
+                updateConverter();
+            });
+        });
+        
+        ['xrpAmount', 'buyPrice', 'targetPrice'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateCalculator);
+        });
+        
+        document.getElementById('convertAmount').addEventListener('input', updateConverter);
+        
+        // Init
+        fetchPrice();
+        fetchNews();
+        
+        // Refresh every 5 minutes
+        setInterval(fetchPrice, 5 * 60 * 1000);
+        setInterval(fetchNews, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
